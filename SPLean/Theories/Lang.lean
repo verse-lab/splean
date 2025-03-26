@@ -862,6 +862,8 @@ syntax "len" : uop
 syntax lang noWs "[" lang "]" : lang
 -- syntax lang noWs "[" lang "] := " lang : lang
 -- syntax "mkarr" lang ", " lang : lang
+-- t:term --> [lang| l : lang]
+-- trm_seq t₁ t₂
 
 syntax "[lang| " lang "]" : term
 syntax "[bop| " bop "]" : term

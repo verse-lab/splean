@@ -144,3 +144,88 @@ lemma findIdx_spec' (arr : loc) (f : Int -> ℝ)
   move=> inj iin
   xapp findIdx_spec; xsimp=> /=
   rw [Function.invFunOn_app_eq f inj iin]
+
+lang_def is_sorted :=
+  fun a =>
+    let length := len a in
+    let eq := length = 0 in
+    if eq then
+      true
+    else
+      ref result := true in
+      for i in [0 : length - 1] {
+        let prev_elt := a[i] in
+        let iSucc := i + 1 in
+        let elt := a[iSucc] in
+        if prev_elt > elt then
+          result := false
+        else ()
+      }
+      !result
+
+def is_sorted_List (xs : List ℕ) : Bool :=
+  xs.foldl (fun (acc) (elt : ℕ) =>
+    match acc with
+    | none => none
+    | some prev_elt =>
+      if prev_elt > elt then
+        none
+      else
+        some elt
+  ) (some 0) ≠ none
+
+lemma is_sorted_spec (a : loc) (xs : List ℕ) (n : ℕ) (_ : n = xs.length) :
+  { arr(a, i in n => xs[i]!) }
+  [ is_sorted a ]
+  { v, ⌜v = val_bool (is_sorted_List xs)⌝ ∗ arr(a, i in n => xs[i]!) } := by
+  xstep
+
+
+lang_def foldi :=
+  fun f arr init length =>
+    let acc := init in
+    for i in [0:length] {
+      acc := f i acc arr[i]
+    }; acc
+
+set_option pp.all true in #print foldi
+
+def foldi_List (f : ℕ -> ℕ -> ℕ -> ℕ) (xs : List ℕ) (init : ℕ) : ℕ :=
+  xs.foldlIdx f init
+
+lemma foldi_spec (f arr init length : loc) (xs : List ℕ) (n : ℕ) (_ : n = xs.length) :
+  { ⌜!length = n⌝ ∗ arr(arr, i in n => xs[i]!) }
+  [ foldi f arr init length ]
+  { v, ⌜v = val_int (foldi_List f xs init)⌝ ∗ ⌜!length = n⌝ ∗ arr(arr, i in n => xs[i]!) } := by
+  sorry
+
+lang_def map :=
+  fun f arr length =>
+    for i in [0:length] {
+      arr[i] := f arr[i]
+    }; arr
+
+lemma map_spec (f arr length : loc) (xs ys : List ℕ) (n : ℕ) (_ : n = xs.length) :
+  (xs.map f = ys) ->
+  { ⌜!length = n⌝ ∗ arr(arr, i in n => xs[i]!) }
+  [ map f arr length ]
+  { v, ⌜v = val_loc arr⌝ ∗ ⌜!length = n⌝ ∗ arr(arr, i in n => ys[i]!) } := by
+  sorry
+
+lang_def rev :=
+  fun arr length =>
+    for i in [0:length] {
+      let j := length - i - 1 in
+      if i < j then
+        let tmp := arr[i] in
+        arr[i] := arr[j]
+        arr[j] := tmp
+      else ()
+    }; arr
+
+lemma rev_spec (arr length : loc) (xs ys : List ℕ) (n : ℕ) (_ : n = xs.length) :
+  (xs.reverse = ys) ->
+  { ⌜!length = n⌝ ∗ arr(arr, i in n => xs[i]!) }
+  [ rev arr length ]
+  { v, ⌜v = val_loc arr⌝ ∗ ⌜!length = n⌝ ∗ arr(arr, i in n => ys[i]!) } := by
+  so
